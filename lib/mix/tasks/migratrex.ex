@@ -15,12 +15,12 @@ defmodule Mix.Tasks.Migratrex do
 
   ## Command line options
     * `-r`, `--repo` - the repo to migrate (defaults to `YourApp.Repo`)
+    * `--force` - Force file generation (will overwrite existing models and tests
   """
 
   @doc false
   def run(args) do
     repos = parse_repo(args)
-
 
     Enum.each repos, fn repo ->
       Logger.configure(level: :info)
@@ -31,12 +31,12 @@ defmodule Mix.Tasks.Migratrex do
 
       table_names = Tables.table_names |> repo.all
       Enum.each(table_names, fn(table_name) ->
-        build_model_and_test(repo, namespace, table_name)
+        build_model_and_test(repo, namespace, table_name, args)
       end)
     end
   end
 
-  defp build_model_and_test(repo, namespace, table_name) do
+  defp build_model_and_test(repo, namespace, table_name, opts) do
     models_directory = File.cwd!() |> Path.join("web/models")
     tests_directory = File.cwd!() |> Path.join("test/models")
     singularized_name = Utils.singularize(table_name)
@@ -47,7 +47,7 @@ defmodule Mix.Tasks.Migratrex do
     check_constraints = CheckConstraints.check_constraints(table_name) |> repo.all
 
     model_path = Path.join(models_directory, "#{singularized_name}.ex")
-    if File.exists?(model_path) do
+    if File.exists?(model_path) and !"--force" in opts do
       IO.puts "skipping #{model_path}"
     else
       IO.puts "writing #{namespace}.#{module_name} for #{table_name}"
@@ -55,7 +55,7 @@ defmodule Mix.Tasks.Migratrex do
     end
 
     test_path = Path.join(tests_directory, "#{singularized_name}_test.exs")
-    if File.exists?(test_path) do
+    if File.exists?(test_path) and !"--force" in opts do
       IO.puts "skipping #{test_path}"
     else
       IO.puts "writing #{namespace}.#{module_name}Test"
@@ -135,9 +135,9 @@ defmodule Mix.Tasks.Migratrex do
     |> Enum.each(fn(col) ->
       file
       |> write_line("")
-      |> write_line("  test \"changeset requires attribute #{col.column_name}\" do")
+      |> write_line("  test \"changeset requires length of #{col.column_name}\ to be at most #{col.character_maximum_length}\" do")
       |> write_line("    changeset = #{module_name}.changeset(%#{module_name}{}, %{@valid_attrs | #{col.column_name} => String.duplicate(\"x\", #{col.character_maximum_length + 1})})")
-      |> write_line("    assert [{unquote(attr), {\"should be at most %{count} character(s)\", [count: #{col.character_maximum_length}]}}] == changeset.errors")
+      |> write_line("    assert [{:#{col.column_name}, {\"should be at most %{count} character(s)\", [count: #{col.character_maximum_length}]}}] == changeset.errors")
       |> write_line("  end")
     end)
     file
