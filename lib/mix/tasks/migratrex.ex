@@ -98,7 +98,7 @@ defmodule Mix.Tasks.Migratrex do
 
   defp add_valid_attrs(file, columns) do
     valid_attrs = columns
-    |> Enum.filter(&(&1.is_nullable == "NO" and &1.column_default == nil))
+    |> required_columns
     |> Enum.map(fn(col) ->
       "#{col.column_name}: #{column_default(col)}"
     end)
@@ -117,7 +117,7 @@ defmodule Mix.Tasks.Migratrex do
 
   defp add_required_attributes_tests(file, module_name, columns) do
     columns
-    |> Enum.filter(&(&1.is_nullable == "NO" and &1.column_default == nil))
+    |> required_columns
     |> Enum.each(fn(col) ->
       file
       |> write_line("")
@@ -177,7 +177,7 @@ defmodule Mix.Tasks.Migratrex do
 
   defp add_required(file, columns) do
     required_column_names = columns
-    |> Enum.filter(&(&1.is_nullable == "NO" and &1.column_default == nil))
+    |> required_columns
     |> Enum.map(&(&1.column_name))
     write_line(file, "    |> validate_required(~w[#{Enum.join(required_column_names, " ")}]a)")
     file
@@ -253,6 +253,11 @@ defmodule Mix.Tasks.Migratrex do
     end
 
     file
+  end
+
+  defp required_columns(columns) do
+    columns
+    |> Enum.filter(&(&1.is_nullable == "NO" and &1.column_default == nil))
   end
 
   @field_types %{
