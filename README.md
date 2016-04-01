@@ -1,10 +1,8 @@
 # Migratrex
 
-**TODO: Add description**
+A mix task that will generate models and tests based on existing database tables.
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+## Usage
 
   1. Add migratrex to your list of dependencies in `mix.exs`:
 
@@ -12,9 +10,6 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
           [{:migratrex, "~> 0.0.1"}]
         end
 
-  2. Ensure migratrex is started before your application:
+  2. Run `mix migratrex`
 
-        def application do
-          [applications: [:migratrex]]
-        end
-
+  3. When the build is finished, you can remove the dependency
