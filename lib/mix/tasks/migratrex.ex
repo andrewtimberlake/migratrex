@@ -23,6 +23,7 @@ defmodule Mix.Tasks.Migratrex do
 
 
     Enum.each repos, fn repo ->
+      Logger.configure(level: :info)
       ensure_repo(repo, args)
       {:ok, _pid} = ensure_started(repo, [])
 
