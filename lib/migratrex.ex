@@ -1,0 +1,2 @@
+defmodule Migratrex do
+end
