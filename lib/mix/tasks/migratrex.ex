@@ -47,9 +47,20 @@ defmodule Mix.Tasks.Migratrex do
     check_constraints = CheckConstraints.check_constraints(table_name) |> repo.all
 
     model_path = Path.join(models_directory, "#{singularized_name}.ex")
-    build_model(model_path, table_name, namespace, module_name, columns, foreign_keys, check_constraints)
+    if File.exists?(model_path) do
+      IO.puts "skipping #{model_path}"
+    else
+      IO.puts "writing #{namespace}.#{module_name} for #{table_name}"
+      build_model(model_path, table_name, namespace, module_name, columns, foreign_keys, check_constraints)
+    end
+
     test_path = Path.join(tests_directory, "#{singularized_name}_test.exs")
-    build_test(test_path, namespace, module_name, columns)
+    if File.exists?(test_path) do
+      IO.puts "skipping #{test_path}"
+    else
+      IO.puts "writing #{namespace}.#{module_name}Test"
+      build_test(test_path, namespace, module_name, columns)
+    end
   end
 
   defp build_model(model_path, table_name, namespace, module_name, columns, foreign_keys, check_constraints) do
