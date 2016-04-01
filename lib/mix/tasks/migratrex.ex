@@ -131,7 +131,7 @@ defmodule Mix.Tasks.Migratrex do
 
   defp add_valid_lengths_tests(file, module_name, columns) do
     columns
-    |> Enum.filter(&(&1.character_maximum_length))
+    |> columns_with_max_length
     |> Enum.each(fn(col) ->
       file
       |> write_line("")
@@ -185,7 +185,7 @@ defmodule Mix.Tasks.Migratrex do
 
   defp add_validate_length(file, columns) do
     columns
-    |> Enum.filter(&(&1.character_maximum_length))
+    |> columns_with_max_length
     |> Enum.each(fn(col) ->
       write_line(file, "    |> validate_length(:#{col.column_name}, max: #{col.character_maximum_length})")
     end)
@@ -253,6 +253,11 @@ defmodule Mix.Tasks.Migratrex do
     end
 
     file
+  end
+
+  defp columns_with_max_length(columns) do
+    columns
+    |> Enum.filter(&(&1.character_maximum_length))
   end
 
   defp required_columns(columns) do
