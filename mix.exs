@@ -7,7 +7,11 @@ defmodule Migratrex.Mixfile do
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps,
+     name: "Migratrex",
+     source_url: "https://github.com/andrewtimberlake/migratrex",
+     description: "Build Ecto models and tests from existing database (Postgresql)",
+     package: package]
   end
 
   # Configuration for the OTP application
@@ -27,6 +31,14 @@ defmodule Migratrex.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [
+      {:ecto, "~> 2.0-beta"}
+    ]
+  end
+
+  defp package do
+    [maintainers: ["Andrew Timberlake"],
+     licenses: ["MIT"],
+     links: %{"Github" => "https://github.com/andrewtimberlake/migratrex"}]
   end
 end
